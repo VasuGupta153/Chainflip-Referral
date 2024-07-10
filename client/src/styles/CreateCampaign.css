@@ -1,46 +1,78 @@
 .create-campaign-container {
   background-color: #1e2026;
-  padding: 20px;
-  border-radius: 8px;
-  max-width: 500px;
-  margin: 50px auto;
-  box-shadow: 0 0 15px rgba(0, 0, 0, 0.5);
+  padding: 40px 5%; /* Increased vertical padding */
+  border-radius: 12px;
+  width: 60%; /* Reduced from 80% to 70% to make it less broad */
+  margin: 40px auto; /* Equal margin top and bottom */
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
 }
 
+
 .create-campaign-container h2 {
-  color: #ffffff;
+  color: #3b82f6; /* Changed to match the blue in the image */
+  text-shadow: 0 0 10px rgba(66, 135, 245, 0.5);
   text-align: center;
-  margin-bottom: 20px;
+  margin-bottom: 25px;
+  font-size: 24px;
 }
 
 .create-campaign-form {
   display: flex;
   flex-direction: column;
   gap: 15px;
+  max-width: 500px;
+  margin: 0 auto;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
 }
 
 .form-input {
   padding: 10px;
-  border: 1px solid #ccc;
+  border: 1px solid #3a3d46;
   border-radius: 4px;
   font-size: 16px;
+  background-color: #2c2f36;
+  color: #ffffff;
+  margin-top: 5px; /* Add some space between label and input */
 }
 
 .form-input::placeholder {
-  color: #999;
+  color: #6c7080;
 }
 
 .submit-button {
-  background-color: #0052ff;
-  color: #ffffff;
+  background-color: #0052ff; /* Bright blue background */
+  color: #ffffff; /* White text */
   padding: 10px 20px;
-  border: none;
-  border-radius: 4px;
+  border: none; /* Remove border */
+  border-radius: 8px; /* Rounded corners */
   cursor: pointer;
   font-size: 16px;
+  font-weight: bold; /* Make text bold */
   transition: background-color 0.3s ease;
+  margin-top: 20px; /* Add more space above the button */
+  text-transform: uppercase; /* Uppercase text */
+  letter-spacing: 0.5px; /* Slight letter spacing */
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2); /* Subtle shadow */
 }
 
 .submit-button:hover {
-  background-color: #003bb5;
+  background-color: #2563eb; /* Slightly darker blue on hover */
+}
+
+.submit-button:active {
+  transform: translateY(1px); /* Slight push effect when clicked */
+}
+.wallet-connect-message {
+  color: #ffffff;
+  text-align: center;
+  background-color: #ff3b30;
+  padding: 15px 5%;
+  border-radius: 8px;
+  width: 70%; /* Match the container width */
+  margin: 40px auto; /* Match the container margin */
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
 }

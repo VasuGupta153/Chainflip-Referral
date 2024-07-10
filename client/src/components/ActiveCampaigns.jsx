@@ -1,41 +1,36 @@
-import { useState, useEffect } from 'react'
-import { ethers } from 'ethers'
+import { useQuery } from '@apollo/client'
+import { gql } from '@apollo/client'
 import { Link } from 'react-router-dom'
-import Campaign from '../contracts/Campaign.json'
 import '../styles/ActiveCampaigns.css'
 
-const ActiveCampaigns = ({ campaignFactory, signer }) => {
-  const [campaigns, setCampaigns] = useState([])
-
-  useEffect(() => {
-    const fetchCampaigns = async () => {
-      if (campaignFactory && signer) {
-        const campaignCount = await campaignFactory.campaignCount()
-        const loadedCampaigns = []
-        for (let i = 0; i < campaignCount; i++) {
-          const campaignAddress = await campaignFactory.campaigns(i)
-          const campaign = new ethers.Contract(campaignAddress, Campaign.abi, signer)
-          const campaignData = await campaign.getCampaignData()
-          loadedCampaigns.push({ address: campaignAddress, ...campaignData })
-        }
-        setCampaigns(loadedCampaigns)
-      }
+const GET_ACTIVE_CAMPAIGNS = gql`
+  query {
+    campaignCreateds(where: { isLive: "1" }) {
+      id
+      creator
+      isLive
     }
+  }
+`
 
-    fetchCampaigns()
-  }, [campaignFactory, signer])
+const ActiveCampaigns = () => {
+  const { loading, error, data } = useQuery(GET_ACTIVE_CAMPAIGNS)
+
+  if (loading) return <p>Loading...</p>
+  if (error) return <p>Error: {error.message}</p>
+
+  const campaigns = data.campaignCreateds
 
   return (
     <div className="active-campaigns">
       <h2>Active Campaigns</h2>
       {campaigns.length > 0 ? (
         campaigns.map((campaign) => (
-          <div key={campaign.address} className="campaign-card">
-            <h3>{campaign.name}</h3>
-            <p><strong>Deadline:</strong> {new Date(campaign.deadline * 1000).toLocaleString()}</p>
-            <p><strong>Total Reward Amount:</strong> {ethers.utils.formatEther(campaign.totalRewardAmount)} ETH</p>
-            <p><strong>Reward Per Referral:</strong> {ethers.utils.formatEther(campaign.rewardPerReferral)} ETH</p>
-            <Link to={`/dashboard/${campaign.address}`} className="view-link">View Campaign</Link>
+          <div key={campaign.id} className="campaign-card">
+            <h3>Campaign ID: {campaign.id}</h3>
+            <p><strong>Creator:</strong> {campaign.creator}</p>
+            <p><strong>Is Live:</strong> {campaign.isLive === "1" ? "Yes" : "No"}</p>
+            <Link to={`/dashboard/${campaign.id}`} className="view-link">View Campaign</Link>
           </div>
         ))
       ) : (
