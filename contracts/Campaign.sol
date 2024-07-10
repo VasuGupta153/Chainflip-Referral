@@ -4,17 +4,20 @@ pragma solidity ^0.8.0;
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/access/AccessControl.sol";
 import "@openzeppelin/contracts/proxy/utils/Initializable.sol";
+import "./WorldIDHelper.sol";
 
 /// @title Campaign
 /// @notice This contract represents an individual campaign and manages participation and reward distribution.
 /// @dev Uses OpenZeppelin's AccessControl for role-based access control and Initializable for upgradeable contracts.
 
-contract Campaign is AccessControl, Initializable {
+contract Campaign is AccessControl, Initializable, WorldIDHelper {
     bytes32 public constant ADMIN_ROLE = keccak256("ADMIN_ROLE");
 
     /// @notice The address of the ERC20 reward token
     address public constant REWARD_TOKEN = 0xdC27c60956cB065D19F08bb69a707E37b36d8086;
+  
 
+  
     /// @notice The ID of the campaign
     bytes public campaignId;
 
@@ -121,7 +124,19 @@ contract Campaign is AccessControl, Initializable {
     /// @notice Allows a user to participate in the campaign using a referral code
     /// @param referralCode The referral code used for participation
 
-    function participate(string memory referralCode) external {
+    function participate(
+        address signal,
+        uint256 root,
+        uint256 nullifierHash,
+        uint256[8] calldata proof,
+        string memory referralCode
+        )
+     verifyAndExecute(
+        signal,
+        root,
+        nullifierHash,
+        proof)
+      external {
         require(!isStopped, "Campaign has been stopped");
         require(block.timestamp < deadline, "Campaign has ended");
         require(!hasParticipated[msg.sender], "Already participated");
