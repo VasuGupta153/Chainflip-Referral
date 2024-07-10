@@ -1,0 +1,46 @@
+.create-campaign-container {
+  background-color: #1e2026;
+  padding: 20px;
+  border-radius: 8px;
+  max-width: 500px;
+  margin: 50px auto;
+  box-shadow: 0 0 15px rgba(0, 0, 0, 0.5);
+}
+
+.create-campaign-container h2 {
+  color: #ffffff;
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.create-campaign-form {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.form-input {
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 16px;
+}
+
+.form-input::placeholder {
+  color: #999;
+}
+
+.submit-button {
+  background-color: #0052ff;
+  color: #ffffff;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 16px;
+  transition: background-color 0.3s ease;
+}
+
+.submit-button:hover {
+  background-color: #003bb5;
+}

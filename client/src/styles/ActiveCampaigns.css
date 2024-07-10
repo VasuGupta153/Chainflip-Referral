@@ -1,0 +1,55 @@
+.active-campaigns {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+  text-align: center;
+}
+
+.active-campaigns h2 {
+  color: #4287f5;
+  text-shadow: 0 0 10px rgba(66, 135, 245, 0.5);
+  margin-bottom: 30px;
+}
+
+.campaign-card {
+  background-color: #1e2026;
+  border: 1px solid #2a2d36;
+  border-radius: 10px;
+  padding: 20px;
+  margin-bottom: 20px;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.campaign-card h3 {
+  color: #ffffff;
+  margin-bottom: 15px;
+}
+
+.campaign-card p {
+  color: #b0b0b0;
+  margin: 5px 0;
+}
+
+.campaign-card p strong {
+  color: #ffffff;
+}
+
+.campaign-card .view-link {
+  display: inline-block;
+  margin-top: 15px;
+  padding: 10px 20px;
+  color: #ffffff;
+  background-color: #0052ff;
+  border-radius: 5px;
+  text-decoration: none;
+  transition: background-color 0.3s;
+}
+
+.campaign-card .view-link:hover {
+  background-color: #003bb5;
+}
+
+.campaign-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
