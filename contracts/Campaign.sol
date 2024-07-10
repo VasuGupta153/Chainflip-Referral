@@ -5,88 +5,88 @@ import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/access/AccessControl.sol";
 import "@openzeppelin/contracts/proxy/utils/Initializable.sol";
 
-// @title Campaign
-// @notice This contract represents an individual campaign and manages participation and reward distribution.
-// @dev Uses OpenZeppelin's AccessControl for role-based access control and Initializable for upgradeable contracts.
+/// @title Campaign
+/// @notice This contract represents an individual campaign and manages participation and reward distribution.
+/// @dev Uses OpenZeppelin's AccessControl for role-based access control and Initializable for upgradeable contracts.
 
 contract Campaign is AccessControl, Initializable {
     bytes32 public constant ADMIN_ROLE = keccak256("ADMIN_ROLE");
 
-
-    // @notice The address of the ERC20 reward token
-
+    /// @notice The address of the ERC20 reward token
     address public constant REWARD_TOKEN = 0xdC27c60956cB065D19F08bb69a707E37b36d8086;
 
-
-    // @notice The ID of the campaign
+    /// @notice The ID of the campaign
     bytes public campaignId;
 
-    // @notice The name of the campaign
+    /// @notice The name of the campaign
     string public name;
-
-    // @notice The deadline for the campaign
+    
+    /// @notice The deadline for the campaign
     uint256 public deadline;
-
-    // @notice The total reward amount allocated for the campaign
+    
+    /// @notice The total reward amount allocated for the campaign
     uint256 public totalRewardAmount;
-
-    // @notice The reward amount per referral
+    
+    /// @notice The reward amount per referral
     uint256 public rewardPerReferral;
-
-    // @notice The number of referrals left that can be rewarded
+    
+    /// @notice The number of referrals left that can be rewarded
     uint256 public leftReferralCount;
-
-    // @notice Indicates whether the campaign has been stopped
+    
+    /// @notice Indicates whether the campaign has been stopped
     bool public isStopped;
-
-    // @notice The address of the campaign creator
+    
+    /// @notice The address of the campaign creator
     address public creator;
-
-
-    // @notice Mapping to track whether an address has participated in the campaign
+    
+    /// @notice Mapping to track whether an address has participated in the campaign
     mapping(address => bool) public hasParticipated;
-
-    // @notice Array of participants in the campaign
+    
+    /// @notice Array of participants in the campaign
     address[] public participants;
-
-    // @notice Mapping to track the number of referrals for each participant
+    
+    /// @notice Mapping to track the number of referrals for each participant
     mapping(address => uint256) public referralCount;
-
-    // @notice Mapping to store referral codes for each participant
+    
+    /// @notice Mapping to store referral codes for each participant
     mapping(address => string) public referralCodes;
-
-    // @notice Mapping to link referral codes to referrers
+    
+    /// @notice Mapping to link referral codes to referrers
     mapping(string => address) public codeToReferrer;
-
-    // @notice Mapping to track whether a participant has been referred
+    
+    /// @notice Mapping to track whether a participant has been referred
     mapping(address => bool) public isReferred;
 
 
-    // @notice Emitted when a referral code is set for a user
-    // @param user The address of the user
-    // @param code The referral code
+    /// @notice Emitted when a referral code is set for a user
+    /// @param user The address of the user
+    /// @param code The referral code
+
     event ReferralCodeSet(address user, string code);
 
-    // @notice Emitted when a user participates in the campaign
-    // @param user The address of the user
-    // @param referralCode The referral code used for participation
+
+    /// @notice Emitted when a user participates in the campaign
+    /// @param user The address of the user
+    /// @param referralCode The referral code used for participation
+
     event Participated(address user, string referralCode);
 
-    // @notice Emitted when rewards are distributed to a participant
-    // @param user The address of the user
-    // @param amount The amount of reward distributed
+
+    /// @notice Emitted when rewards are distributed to a participant
+    /// @param user The address of the user
+    /// @param amount The amount of reward distributed
+
     event RewardDistributed(address user, uint256 amount);
 
 
-
-    // @notice Initializes the campaign with the specified parameters
-    // @param _campaignId The ID of the campaign
-    // @param _name The name of the campaign
-    // @param _deadline The deadline for the campaign
-    // @param _totalRewardAmount The total reward amount allocated for the campaign
-    // @param _rewardPerReferral The reward amount per referral
-    // @param _creator The address of the campaign creator
-    // @param _owner The address of the owner (admin) of the campaign
+    /// @notice Initializes the campaign with the specified parameters
+    /// @param _campaignId The ID of the campaign
+    /// @param _name The name of the campaign
+    /// @param _deadline The deadline for the campaign
+    /// @param _totalRewardAmount The total reward amount allocated for the campaign
+    /// @param _rewardPerReferral The reward amount per referral
+    /// @param _creator The address of the campaign creator
+    /// @param _owner The address of the owner (admin) of the campaign
 
     function initialize(
         bytes memory _campaignId,
@@ -109,7 +109,8 @@ contract Campaign is AccessControl, Initializable {
         _grantRole(ADMIN_ROLE, _owner);
     }
 
-    // @notice Modifier to restrict access to admin functions
+
+    /// @notice Modifier to restrict access to admin functions
     modifier onlyAdmin() {
         require(hasRole(ADMIN_ROLE, msg.sender), "Caller is not an admin");
         _;
@@ -117,8 +118,8 @@ contract Campaign is AccessControl, Initializable {
 
 
 
-    // @notice Allows a user to participate in the campaign using a referral code
-    // @param referralCode The referral code used for participation
+    /// @notice Allows a user to participate in the campaign using a referral code
+    /// @param referralCode The referral code used for participation
 
     function participate(string memory referralCode) external {
         require(!isStopped, "Campaign has been stopped");
@@ -140,8 +141,8 @@ contract Campaign is AccessControl, Initializable {
 
 
 
-    // @notice Stops the campaign and distributes remaining rewards
-    // @dev Only callable by an admin
+    /// @notice Stops the campaign and distributes remaining rewards
+    /// @dev Only callable by an admin
 
     function stopCampaign() public onlyAdmin {
         require(!isStopped, "Campaign is already stopped");
@@ -156,9 +157,8 @@ contract Campaign is AccessControl, Initializable {
     }
 
 
-
-    // @notice Distributes rewards to participants based on their referrals
-    // @dev Only callable internally when the campaign is stopped
+    /// @notice Distributes rewards to participants based on their referrals
+    /// @dev Only callable internally when the campaign is stopped
 
     function distributeRewards() private {
         for (uint256 i = 0; i < participants.length; ++i) {
@@ -176,9 +176,9 @@ contract Campaign is AccessControl, Initializable {
 
 
 
-    // @notice Sets a referral code for a user
-    // @param user The address of the user
-    // @param code The referral code to be set
+    /// @notice Sets a referral code for a user
+    /// @param user The address of the user
+    /// @param code The referral code to be set
 
     function setReferralCode(address user, string memory code) external onlyAdmin {
         require(hasParticipated[user], "User has not participated");
@@ -191,28 +191,23 @@ contract Campaign is AccessControl, Initializable {
     }
 
 
-
-    // @notice Gets the participation information of a user
-    // @param user The address of the user
-    // @return A tuple containing participation status, referral count, and referral code of the user
-
+    /// @notice Gets the participation information of a user
+    /// @param user The address of the user
+    /// @return A tuple containing participation status, referral count, and referral code of the user
     function getParticipantInfo(address user) external view returns (bool, uint256, string memory) {
         return (hasParticipated[user], referralCount[user], referralCodes[user]);
     }
 
 
-
-    // @notice Adds a new admin to the campaign
-    // @param newAdmin The address of the new admin
-    
+    /// @notice Adds a new admin to the campaign
+    /// @param newAdmin The address of the new admin
     function addAdmin(address newAdmin) public onlyAdmin {
         grantRole(ADMIN_ROLE, newAdmin);
     }
 
 
-    // @notice Removes an admin from the campaign
-    // @param admin The address of the admin to be removed
-    
+    /// @notice Removes an admin from the campaign
+    /// @param admin The address of the admin to be removed
     function removeAdmin(address admin) public onlyAdmin {
         revokeRole(ADMIN_ROLE, admin);
     }
