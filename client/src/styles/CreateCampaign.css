@@ -76,3 +76,55 @@
   margin: 40px auto; /* Match the container margin */
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
 }
+
+
+.popup {
+  position: fixed;
+  bottom: 20px;  /* Changed from top to bottom */
+  right: 20px;
+  padding: 15px 20px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+  z-index: 1000;
+  max-width: 300px;  /* Added to ensure it doesn't get too wide */
+}
+
+.processing {
+  background-color: #2c2f36;
+  color: white;
+}
+
+.completed {
+  background-color: #4caf50;
+  color: white;
+}
+
+.spinner {
+  width: 20px;
+  height: 20px;
+  border: 2px solid #f3f3f3;
+  border-top: 2px solid #3498db;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-right: 10px;
+  flex-shrink: 0;  /* Prevent spinner from shrinking */
+}
+
+.checkmark {
+  font-size: 20px;
+  margin-right: 10px;
+  flex-shrink: 0;  /* Prevent checkmark from shrinking */
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Added to make text wrap if needed */
+.popup p {
+  margin: 0;
+  word-wrap: break-word;
+}
