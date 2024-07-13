@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { ethers } from 'ethers';
 import '../styles/CreateCampaign.css';
 
@@ -10,7 +10,8 @@ const CreateCampaign = ({ campaignFactory, signer, isWalletConnected }) => {
   const [totalRewardAmount, setTotalRewardAmount] = useState('');
   const [rewardPerReferral, setRewardPerReferral] = useState('');
   const [isCreating, setIsCreating] = useState(false);
-
+  const [showProcessing, setShowProcessing] = useState(false);
+  const [showCompleted, setShowCompleted] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -19,6 +20,7 @@ const CreateCampaign = ({ campaignFactory, signer, isWalletConnected }) => {
       return;
     }
     setIsCreating(true);
+    setTimeout(() => setShowProcessing(true), 500);
     try {
       const rewardToken = new ethers.Contract(
         REWARD_TOKEN_ADDRESS,
@@ -26,17 +28,21 @@ const CreateCampaign = ({ campaignFactory, signer, isWalletConnected }) => {
         signer
       )
 
-      await rewardToken.approve(campaignFactory,ethers.parseEther(totalRewardAmount))
+      await rewardToken.approve(campaignFactory, ethers.parseEther(totalRewardAmount))
 
       const deadlineSeconds = Math.floor(Date.now() / 1000) + (parseInt(deadlineDays) * 24 * 60 * 60);
       const tx = await campaignFactory.createCampaign(
         name,
         deadlineSeconds,
         ethers.parseEther(totalRewardAmount),
-        ethers.parseEther(rewardPerReferral)
+        ethers.parseEther(rewardPerReferral),
+        { gasLimit: 5000000 }
       );
       await tx.wait();
       console.log('Campaign created successfully');
+      setShowProcessing(false);
+      setShowCompleted(true);
+      setTimeout(() => setShowCompleted(false), 3000); // Hide completed popup after 3 seconds
       // Reset form
       setName('');
       setDeadlineDays('');
@@ -44,6 +50,7 @@ const CreateCampaign = ({ campaignFactory, signer, isWalletConnected }) => {
       setRewardPerReferral('');
     } catch (error) {
       console.error('Error creating campaign:', error);
+      setShowProcessing(false);
     } finally {
       setIsCreating(false);
     }
@@ -114,6 +121,18 @@ const CreateCampaign = ({ campaignFactory, signer, isWalletConnected }) => {
           {isCreating ? 'Creating Campaign...' : 'Create Campaign'}
         </button>
       </form>
+      {showProcessing && (
+        <div className="popup processing">
+          <div className="spinner"></div>
+          <p>Creating campaign...</p>
+        </div>
+      )}
+      {showCompleted && (
+        <div className="popup completed">
+          <div className="checkmark">✓</div>
+          <p>Campaign created successfully!</p>
+        </div>
+      )}
     </div>
   );
 };

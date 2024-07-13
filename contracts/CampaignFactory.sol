@@ -121,10 +121,11 @@ contract CampaignFactory is Ownable {
     /// @notice Stops an expired campaign
     /// @param _campaign The address of the campaign to be stopped
 
-    function stopExpiredCampaign(address _campaign) public onlyOwner {
+    function stopExpiredCampaign(address _campaign) public {
         Campaign stoppedCampaign = Campaign(_campaign);
+        bool isStopped = stoppedCampaign.isStopped();
         require(stoppedCampaign.deadline() <= block.timestamp, "Campaign has not yet expired");
-
+        require(!isStopped, "Campaign is already stopped");
         stoppedCampaign.stopCampaign();
 
         emit CampaignStopped(

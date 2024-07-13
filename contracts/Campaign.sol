@@ -23,6 +23,9 @@ contract Campaign is AccessControl, Initializable {
     /// @notice The name of the campaign
     string public name;
     
+    /// @notice Creation Time of the campaign
+    uint256 public creationTime;
+
     /// @notice The deadline for the campaign
     uint256 public deadline;
     
@@ -112,6 +115,7 @@ contract Campaign is AccessControl, Initializable {
         _grantRole(DEFAULT_ADMIN_ROLE, msg.sender);
         _grantRole(ADMIN_ROLE, msg.sender);
         _grantRole(ADMIN_ROLE, _owner);
+        creationTime = block.timestamp;
     }
 
 
@@ -131,7 +135,7 @@ contract Campaign is AccessControl, Initializable {
         require(block.timestamp < deadline, "Campaign has ended");
         require(!hasParticipated[msg.sender], "Already participated");
         require(leftReferralCount > 1, "No reward left!");
-        require(hasNullifierHash(msg.sender), "World ID verification required");
+        require(userNullifier[msg.sender] != bytes32(0), "World ID verification required");
 
         
         hasParticipated[msg.sender] = true;
@@ -152,7 +156,7 @@ contract Campaign is AccessControl, Initializable {
     /// @notice Stops the campaign and distributes remaining rewards
     /// @dev Only callable by an admin
 
-    function stopCampaign() public onlyAdmin {
+    function stopCampaign() public  {
         require(!isStopped, "Campaign is already stopped");
         require(block.timestamp >= deadline, "Campaign deadline has not been reached");
         isStopped = true;
@@ -212,8 +216,8 @@ contract Campaign is AccessControl, Initializable {
     /// @notice Checks if a user has a nullifier hash set
     /// @param user The address of the user to check
     /// @return bool True if the user has a nullifier hash set, false otherwise
-    function hasNullifierHash(address user) public view returns (bool) {
-        return userNullifier[user] != bytes32(0);
+    function hasNullifierHash(address user, bytes32 nullfierhash) public view returns (bool) {
+        return userNullifier[user] == nullfierhash;
     }
 
     /// @notice Gets the participation information of a user
@@ -223,7 +227,11 @@ contract Campaign is AccessControl, Initializable {
         return (hasParticipated[user], referralCount[user], referralCodes[user]);
     }
 
-
+    function checkIfExpired() public view returns (bool){
+        if(block.timestamp > deadline)
+            return true;
+        return false;
+    }
     /// @notice Adds a new admin to the campaign
     /// @param newAdmin The address of the new admin
     function addAdmin(address newAdmin) public onlyAdmin {

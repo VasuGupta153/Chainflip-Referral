@@ -1,10 +1,9 @@
 import { useState, useEffect } from 'react'
 import { ethers } from 'ethers'
 import { useParams } from 'react-router-dom'
-import CampaignAbi from '../contracts/Campaign.json'
 
 
-const UserDashboard = ({ account, signer }) => {
+const UserDashboard = ({ campaign, signer }) => {
   const [campaignData, setCampaignData] = useState(null)
   const { campaignAddress } = useParams()
 
@@ -12,8 +11,7 @@ const UserDashboard = ({ account, signer }) => {
     const fetchCampaignData = async () => {
       console.log(campaignAddress);
       if (signer && campaignAddress) {
-        // Assuming you have a way to get the campaign address from the ID
-        // const campaignAddress = await getCampaignAddress(campaignId)
+
         const campaign = new ethers.Contract(campaignAddress, CampaignAbi, signer)
         const [hasParticipated, referralCount, referralCode] = await campaign.getParticipantInfo(account)
         const campaignInfo = await campaign.getCampaignData()
