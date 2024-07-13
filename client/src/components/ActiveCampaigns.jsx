@@ -1,7 +1,9 @@
 import { useQuery } from '@apollo/client'
 import { gql } from '@apollo/client'
-import { Link } from 'react-router-dom'
+import { useState } from 'react'
 import '../styles/ActiveCampaigns.css'
+import WorldID from './WorldID'
+
 
 const GET_ACTIVE_CAMPAIGNS = gql`
   query {
@@ -9,17 +11,24 @@ const GET_ACTIVE_CAMPAIGNS = gql`
       id
       creator
       isLive
+      campaignAddress
     }
   }
 `
 
-const ActiveCampaigns = () => {
+const ActiveCampaigns = ({campaignFactory, signer}) => {
   const { loading, error, data } = useQuery(GET_ACTIVE_CAMPAIGNS)
+  const [selectedCampaign, setSelectedCampaign] = useState(null)
 
   if (loading) return <p>Loading...</p>
   if (error) return <p>Error: {error.message}</p>
 
   const campaigns = data.campaignCreateds
+
+  const handleViewCampaign = (campaign) => {
+    setSelectedCampaign(campaign.id)
+  }
+
 
   return (
     <div className="active-campaigns">
@@ -30,7 +39,16 @@ const ActiveCampaigns = () => {
             <h3>Campaign ID: {campaign.id}</h3>
             <p><strong>Creator:</strong> {campaign.creator}</p>
             <p><strong>Is Live:</strong> {campaign.isLive === "1" ? "Yes" : "No"}</p>
-            <Link to={`/dashboard/${campaign.id}`} className="view-link">View Campaign</Link>
+            {selectedCampaign !== campaign.id ? (
+              <button onClick={() => handleViewCampaign(campaign)} className="view-link">View Campaign</button>
+            ) : (
+              <>
+                <div className="verification-section">
+                  <p className="human-text">Human Verification</p>
+                </div>
+                <WorldID campaignAddress = {campaign.addresss} signer={signer}/>
+              </>
+            )}
           </div>
         ))
       ) : (

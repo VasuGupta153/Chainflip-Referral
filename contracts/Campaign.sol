@@ -4,13 +4,12 @@ pragma solidity ^0.8.0;
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/access/AccessControl.sol";
 import "@openzeppelin/contracts/proxy/utils/Initializable.sol";
-import "./WorldIDHelper.sol";
 
 /// @title Campaign
 /// @notice This contract represents an individual campaign and manages participation and reward distribution.
 /// @dev Uses OpenZeppelin's AccessControl for role-based access control and Initializable for upgradeable contracts.
 
-contract Campaign is AccessControl, Initializable, WorldIDHelper {
+contract Campaign is AccessControl, Initializable {
     bytes32 public constant ADMIN_ROLE = keccak256("ADMIN_ROLE");
 
     /// @notice The address of the ERC20 reward token
@@ -59,6 +58,9 @@ contract Campaign is AccessControl, Initializable, WorldIDHelper {
     
     /// @notice Mapping to track whether a participant has been referred
     mapping(address => bool) public isReferred;
+
+    /// @notice Mapping to store the nullifier hash for each verified user
+    mapping(address => bytes32) public userNullifier;
 
 
     /// @notice Emitted when a referral code is set for a user
@@ -124,23 +126,14 @@ contract Campaign is AccessControl, Initializable, WorldIDHelper {
     /// @notice Allows a user to participate in the campaign using a referral code
     /// @param referralCode The referral code used for participation
 
-    function participate(
-        address signal,
-        uint256 root,
-        uint256 nullifierHash,
-        uint256[8] calldata proof,
-        string memory referralCode
-        )
-     verifyAndExecute(
-        signal,
-        root,
-        nullifierHash,
-        proof)
-      external {
+    function participate( string memory referralCode) external {
         require(!isStopped, "Campaign has been stopped");
         require(block.timestamp < deadline, "Campaign has ended");
         require(!hasParticipated[msg.sender], "Already participated");
         require(leftReferralCount > 1, "No reward left!");
+        require(hasNullifierHash(msg.sender), "World ID verification required");
+
+        
         hasParticipated[msg.sender] = true;
         participants.push(msg.sender);
         if (bytes(referralCode).length > 0) {
@@ -205,6 +198,23 @@ contract Campaign is AccessControl, Initializable, WorldIDHelper {
         emit ReferralCodeSet(user, code);
     }
 
+
+    /// @notice Sets the nullifier hash for a verified user
+    /// @param user The address of the user
+    /// @param nullifierHash The nullifier hash from World ID verification
+    function setNullifierHash(address user, bytes32 nullifierHash) external onlyAdmin {
+        require(nullifierHash != bytes32(0), "Invalid nullifier hash");
+        require(userNullifier[user] == bytes32(0), "Nullifier hash already set for this user");
+        userNullifier[user] = nullifierHash;
+    }
+
+
+    /// @notice Checks if a user has a nullifier hash set
+    /// @param user The address of the user to check
+    /// @return bool True if the user has a nullifier hash set, false otherwise
+    function hasNullifierHash(address user) public view returns (bool) {
+        return userNullifier[user] != bytes32(0);
+    }
 
     /// @notice Gets the participation information of a user
     /// @param user The address of the user
