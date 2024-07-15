@@ -13,21 +13,14 @@ export const GET_ACTIVE_CAMPAIGNS = gql`
 `;
 
 
-export const GET_SWAPS = gql`
-  query {
-    allSwaps(orderBy: ID_ASC, filter: {
-        id: { greaterThan: 1150 }
-        }) {
-        edges {
-            node {
-                id
-                swapScheduledBlockTimestamp
-
-                swapChannelByDepositChannelId {
-                    depositAddress
-                }
-            }
-        }
+export const GET_SWAP_BY_ID = gql`
+query GetSwapById($swapId: String!) {
+  swapById(id: $swapId) {
+    id
+    swapChannelByDepositChannelId {
+      depositAddress
     }
+    swapScheduledBlockTimestamp
+  }
 }
 `;
