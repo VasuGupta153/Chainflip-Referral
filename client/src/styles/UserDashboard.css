@@ -1,0 +1,85 @@
+.user-dashboard {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 40px 20px;
+  background-color: #1e2026;
+  border-radius: 15px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+}
+
+.user-dashboard h1 {
+  color: #4287f5;
+  text-align: center;
+  font-size: 2.5em;
+  margin-bottom: 30px;
+  text-shadow: 0 0 10px rgba(66, 135, 245, 0.5);
+}
+
+.dashboard-content {
+  background-color: #2a2d36;
+  border-radius: 10px;
+  padding: 30px;
+  margin-bottom: 20px;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.dashboard-content:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+.dashboard-content p {
+  color: #b0b0b0;
+  margin: 15px 0;
+  font-size: 1.1em;
+}
+
+.dashboard-content strong {
+  color: #ffffff;
+  font-weight: bold;
+}
+
+.input-field {
+  width: 100%;
+  padding: 12px;
+  margin: 10px 0;
+  border: 1px solid #3a3d46;
+  border-radius: 5px;
+  background-color: #1e2026;
+  color: #ffffff;
+  font-size: 1em;
+}
+
+.button {
+  display: inline-block;
+  margin-top: 20px;
+  padding: 12px 24px;
+  color: #ffffff;
+  background-color: #0052ff;
+  border: none;
+  border-radius: 5px;
+  font-size: 1em;
+  cursor: pointer;
+  transition: background-color 0.3s, transform 0.2s;
+}
+
+.button:hover {
+  background-color: #003bb5;
+  transform: translateY(-2px);
+}
+
+.loading {
+  text-align: center;
+  color: #4287f5;
+  font-size: 1.2em;
+  margin-top: 20px;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.fade-in {
+  animation: fadeIn 0.5s ease-out;
+}

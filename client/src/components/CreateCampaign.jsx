@@ -12,7 +12,8 @@ const CreateCampaign = ({ campaignFactory, signer, isWalletConnected }) => {
   const [isCreating, setIsCreating] = useState(false);
   const [showProcessing, setShowProcessing] = useState(false);
   const [showCompleted, setShowCompleted] = useState(false);
-
+  // console.log(campaignFactory);
+  // console.log(signer);
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!isWalletConnected || !campaignFactory || !signer) {
@@ -28,17 +29,18 @@ const CreateCampaign = ({ campaignFactory, signer, isWalletConnected }) => {
         signer
       )
 
-      await rewardToken.approve(campaignFactory, ethers.parseEther(totalRewardAmount))
+      const aproveTx = await rewardToken.approve(campaignFactory, ethers.parseEther(totalRewardAmount))
+      await aproveTx.wait();
 
-      const deadlineSeconds = Math.floor(Date.now() / 1000) + (parseInt(deadlineDays) * 24 * 60 * 60);
-      const tx = await campaignFactory.createCampaign(
+      const deadlineSeconds = Math.floor(Date.now() / 1000) + (parseFloat(deadlineDays) * 24 * 60 * 60);
+
+      const createCampaignTx = await campaignFactory.createCampaign(
         name,
         deadlineSeconds,
         ethers.parseEther(totalRewardAmount),
         ethers.parseEther(rewardPerReferral),
-        { gasLimit: 5000000 }
       );
-      await tx.wait();
+      await createCampaignTx.wait();
       console.log('Campaign created successfully');
       setShowProcessing(false);
       setShowCompleted(true);
@@ -85,7 +87,6 @@ const CreateCampaign = ({ campaignFactory, signer, isWalletConnected }) => {
             value={deadlineDays}
             onChange={(e) => setDeadlineDays(e.target.value)}
             required
-            min="1"
             placeholder="Enter campaign duration in days"
           />
         </div>

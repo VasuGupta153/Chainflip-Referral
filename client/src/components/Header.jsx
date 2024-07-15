@@ -6,7 +6,7 @@ function Header({ account, connectWallet }) {
   const shortenAddress = (address) => {
     return `${address.slice(0, 6)}...${address.slice(-4)}`;
   };
-
+  // console.log(account);
   return (
     <header className="header">
       <Link to="/" className="logo">ChainFlip Affiliate</Link>

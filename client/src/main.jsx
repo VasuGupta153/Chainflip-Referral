@@ -3,7 +3,7 @@ import { createRoot } from 'react-dom/client';
 import App from './App.jsx'
 import './index.css'
 import { ApolloProvider } from '@apollo/client';
-import client from './apolloClient.js';
+import client from './apolloClient';
 
 const root = createRoot(document.getElementById('root'));
 

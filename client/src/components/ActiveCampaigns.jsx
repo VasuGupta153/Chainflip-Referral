@@ -1,50 +1,60 @@
 import { useQuery } from '@apollo/client'
-import { gql } from '@apollo/client'
-import { Link } from 'react-router-dom'
 import '../styles/ActiveCampaigns.css'
-import WorldID from './WorldID'
 import React, { useState } from 'react';
-import VerifiedUserPage from './VerifiedUserPage';
-
-
-const GET_ACTIVE_CAMPAIGNS = gql`
-  query {
-    campaignCreateds(where: { isLive: "1" }) {
-      id
-      creator
-      isLive
-      campaignAddress
-    }
-  }
-`;
+import { GET_ACTIVE_CAMPAIGNS } from '../utils/queries'
+import { ethers,BaseWallet } from 'ethers';
+import abi from '../contracts/Campaign.json';
+import { useAuth } from '../contexts/AuthContext';
+import {useNavigate} from 'react-router-dom'
 
 const ActiveCampaigns = ({campaignFactory, signer}) => {
   const { loading, error, data } = useQuery(GET_ACTIVE_CAMPAIGNS, {
     context: { clientName: 'campaign' }
   });
   const [selectedCampaign, setSelectedCampaign] = useState(null);
+  const { user} = useAuth();
 
+  const navigate = useNavigate();
   if (loading) return <p>Loading...</p>;
   if (error) return <p>Error: {error.message}</p>;
 
   const campaigns = data.campaignCreateds;
 
-  const handleViewCampaign = async (campaign) => {
+  const handleViewCampaign = async (campaignM) => {
     // Create a provider
-    const provider = new ethers.providers.JsonRpcProvider(import.meta.env.VITE_RPC_URL);
+    const provider = new ethers.JsonRpcProvider(import.meta.env.VITE_RPC_URL);
 
     // Create a wallet instance using the platform's private key
-    const platformWallet = new ethers.Wallet(import.meta.env.VITE_PLATFORM_PRIVATE_KEY, provider);
-
-    if(! (await campaign.checkIfExpired()))
-      setSelectedCampaign(campaign);
+    const privateKey = import.meta.env.VITE_PLATFORM_PRIVATE_KEY;
+    // Create a wallet instance using the platform's private key
+    const platformWallet = new ethers.Wallet(privateKey, provider); 
+    // console.log(platformWallet);
+    const campaign = new ethers.Contract(campaignM.campaignAddress, abi, signer);
+    let result = await campaign.checkIfExpired(); 
+    // console.log(result);
+    if(!result)
+      setSelectedCampaign(campaignM);
     else{
       alert(`Campaign has finished!`);
       console.log(`Campaign has finished!`);
-      await campaignFactory.connect(platformWallet).stopExpiredCampaign(campaign.address);
+      await campaignFactory.connect(platformWallet).stopExpiredCampaign(campaignM.campaignAddress);
+      navigate('/active')
     }
   };
-
+  const handleAuth = (campaign) => {
+      if (!user) {
+        alert('User data is not available yet.');
+        return;
+      }
+      // console.log(user);
+      if (!user.worldIDVerified) {
+        navigate(`/worldid/${campaign.campaignAddress}`);
+      } else if (!user.hasSwapped) {
+        navigate(`/verified-user/${campaign.campaignAddress}`);
+      } else {
+        navigate(`/dashboard/${campaign.campaignAddress}`);
+      }
+    }
 
   return (
     <div className="active-campaigns">
@@ -60,7 +70,7 @@ const ActiveCampaigns = ({campaignFactory, signer}) => {
                 <div className="verification-section">
                   <p className="human-text">Human Verification</p>
                 </div>
-                <WorldID campaign={campaign} signer={signer}/>
+                <button onClick = {() => handleAuth(selectedCampaign)} className='view-link'> Verify </button>
               </>
             ) : (
               <button onClick={() => handleViewCampaign(campaign)} className="view-link">View Campaign</button>
