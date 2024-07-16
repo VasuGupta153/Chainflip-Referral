@@ -1,10 +1,9 @@
-// VerifiedUserPage.js
 import React, { useState, useEffect } from 'react';
-import { useQuery, gql } from '@apollo/client';
+import { useLazyQuery, gql } from '@apollo/client';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useConnectWallet, useCampaign } from "../utils/config";
 import { useAuth } from '../contexts/AuthContext';
-
+import {GET_SWAP_BY_ID} from '../utils/queries';
 
 const VerifiedUserPage = () => {
   const [swapId, setSwapId] = useState('');
@@ -15,9 +14,7 @@ const VerifiedUserPage = () => {
   const campaign = useCampaign(campaignAddress, signer);
   const navigate = useNavigate();
 
-  const { loading, error, data, refetch } = useQuery(GET_SWAP_BY_ID, {
-    variables: { swapId },
-    skip: !swapId,
+  const [getSwap, { loading, error, data }] = useLazyQuery(GET_SWAP_BY_ID, {
     context: { clientName: 'swap' }
   });
 
@@ -70,7 +67,14 @@ const VerifiedUserPage = () => {
   };
 
   const handleVerify = () => {
-    refetch();
+    if (swapId) {
+      getSwap({
+      variables: { swapId: swapId.trim() }, // Trim any whitespace
+      onError: (error) => {
+        console.error('GraphQL error:', error);
+      } 
+    });
+    }
   };
 
   if (loading) return <p>Loading...</p>;

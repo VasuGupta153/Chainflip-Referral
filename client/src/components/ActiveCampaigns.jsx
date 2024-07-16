@@ -47,8 +47,8 @@ const ActiveCampaigns = ({campaignFactory, signer}) => {
         return;
       }
       // console.log(user);
-      if (!user.worldIDVerified) {
-        navigate(`/worldid/${campaign.campaignAddress}`);
+        if (!user.worldIDVerified) {
+          navigate(`/worldid/${campaign.campaignAddress}`);
       } else if (!user.hasSwapped) {
         navigate(`/verified-user/${campaign.campaignAddress}`);
       } else {
