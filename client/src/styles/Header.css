@@ -3,10 +3,12 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-top: 2vh;
+  margin-top: 3vh;
   padding: 2vh 5vw;
   border-radius: 25px;
   background-color: #1e2026;
+  /* box-shadow: 0 0 2px rgba(66, 135, 245, 0.2); */
+
 }
 
 .nav-link {

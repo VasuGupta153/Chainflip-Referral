@@ -3,6 +3,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { ethers } from 'ethers';
 import { useConnectWallet, useCampaign } from "../utils/config";
 import { useParams } from 'react-router-dom';
+import '../styles/UserDashboard.css';
 
 const UserDashboard = () => {
   const params = useParams();
@@ -79,38 +80,46 @@ const UserDashboard = () => {
   };
 
   if (isLoading) {
-    return <div>Loading...</div>;
+    return <div className="loading-overlay">Loading...</div>;
   }
 
   return (
     <div className="user-dashboard">
-      <h1>User Dashboard</h1>
-      {isLoading ? (
-        <div className="loading">Loading...</div>
-      ) : (
-        <div className="dashboard-content fade-in">
-          {!hasParticipated ? (
-            <div>
-              <p>You haven't participated in this campaign yet.</p>
-              <input 
-                className="input-field"
-                type="text" 
-                placeholder="Enter referral code (optional)" 
-                value={inputReferralCode}
-                onChange={(e) => setInputReferralCode(e.target.value)}
-              />
-              <button className="button" onClick={handleParticipate}>Participate in Campaign</button>
+      <h1 className="dashboard-title">User Dashboard</h1>
+      <div className="dashboard-content fade-in">
+        {!true ? (
+          <div className="participation-section">
+            <p className="info-text">You haven't participated in this campaign yet.</p>
+            <input 
+              className="input-field"
+              type="text" 
+              placeholder="Enter referral code (optional)" 
+              value={inputReferralCode}
+              onChange={(e) => setInputReferralCode(e.target.value)}
+            />
+            <button className="action-button" onClick={handleParticipate}>Participate in Campaign</button>
+          </div>
+        ) : (
+          <div className="stats-section">
+            <div className="stat-item">
+              <span className="stat-label">Your Referral Code:</span>
+              <span className="stat-value highlight">{userReferralCode}</span>
             </div>
-          ) : (
-            <div>
-              <p><strong>Your Referral Code:</strong> {userReferralCode}</p>
-              <p><strong>Number of Referrals:</strong> {referralCount}</p>
-              <p><strong>Reward Per Referral:</strong> {rewardPerReferral} Flip</p>
-              <p><strong>Estimated Total Reward:</strong> {estimatedReward} Flip</p>
+            <div className="stat-item">
+              <span className="stat-label">Number of Referrals:</span>
+              <span className="stat-value">{referralCount}</span>
             </div>
-          )}
-        </div>
-      )}
+            <div className="stat-item">
+              <span className="stat-label">Reward Per Referral:</span>
+              <span className="stat-value">{rewardPerReferral} Flip</span>
+            </div>
+            <div className="stat-item">
+              <span className="stat-label">Estimated Total Reward:</span>
+              <span className="stat-value highlight">{estimatedReward} Flip</span>
+            </div>
+          </div>
+        )}
+      </div>
     </div>
   );
 }
