@@ -16,6 +16,7 @@ app.use(express.json());
 const WLD_API_BASE_URL = process.env.PUBLIC_WLD_API_BASE_URL;
 const WLD_APP_ID = process.env.PUBLIC_WLD_APP_ID;
 
+
 const verifyEndpoint = `${WLD_API_BASE_URL}/api/v1/verify/${WLD_APP_ID}`;
 
 app.post('/api/verify', async (req, res) => {
