@@ -10,6 +10,7 @@ const VerifiedUserPage = () => {
   const [swapId, setSwapId] = useState('');
   const [transactionHash, setTransactionHash] = useState('');
   const [verifyClicked, setVerifyClicked] = useState(false);
+  const [selectedNetwork, setSelectedNetwork] = useState('sepolia');
   const { user, setUser } = useAuth();
   const params = useParams();
   const campaignAddress = params.campaignAddress;
@@ -37,8 +38,16 @@ const VerifiedUserPage = () => {
   }, [campaign]);
 
   const fetchTransaction = async (txHash) => {
-    const apiKey = import.meta.env.VITE_ETHERSCAN_API_KEY;
-    const url = `https://api-sepolia.etherscan.io/api?module=proxy&action=eth_getTransactionByHash&txhash=${txHash}&apikey=${apiKey}`;
+    const apiKey=selectedNetwork==='sepolia'
+    ? import.meta.env.VITE_ETHEREUM_API_KEY
+    : import.meta.env.VITE_ARBITRUM_API_KEY;
+
+    const apiUrl = selectedNetwork === 'sepolia' 
+      ? `https://api-sepolia.etherscan.io/api`
+      : `https://api-sepolia.arbiscan.io/api`;
+      
+    
+    const url = `${apiUrl}?module=proxy&action=eth_getTransactionByHash&txhash=${txHash}&apikey=${apiKey}`;
     
     try {
       const response = await fetch(url);
@@ -52,6 +61,7 @@ const VerifiedUserPage = () => {
 
   useEffect(() => {
     const verifySwap = async () => {
+      console.log("hdfh"+campaignStartTime);
       if (verifyClicked && data && data.allSwaps && campaignStartTime && signer) {
         const userSwap = data.allSwaps.edges.find(edge => edge.node.nativeId === swapId)?.node;
         
@@ -60,7 +70,7 @@ const VerifiedUserPage = () => {
           return;
         }
 
-        console.log("Verification data:", { userSwap, campaignStartTime, signerAddress: signer.address });
+        console.log("Verification data:", { userSwap, campaignStartTime, signerAddress: signer.address, selectedNetwork });
         
         const depositAddress = userSwap.swapChannelByDepositChannelId?.depositAddress;
         const swapTimestamp = Math.floor(new Date(userSwap.swapScheduledBlockTimestamp).getTime() / 1000);
@@ -69,10 +79,10 @@ const VerifiedUserPage = () => {
         if (swapTimestamp >= campaignStartTime) {
           const transaction = await fetchTransaction(transactionHash);
           console.log("Fetched transaction:", transaction);
-          
+          console.log('siger'+signer.address)
           if (transaction && 
-              transaction.to.toLowerCase() === depositAddress.toLowerCase() && 
-              parseInt(transaction.timeStamp) >= campaignStartTime) {
+              transaction.to === depositAddress && 
+              parseInt(transaction.timeStamp) >= campaignStartTime && transaction.from===signer.address) {
             setUser({ ...user, hasSwapped: true });
             navigate(`/dashboard/${campaignAddress}`);
           } else {
@@ -85,7 +95,7 @@ const VerifiedUserPage = () => {
     };
 
     verifySwap();
-  }, [data, campaignStartTime, signer, verifyClicked, user, navigate, campaignAddress, swapId, transactionHash]);
+  }, [data, campaignStartTime, signer, verifyClicked, user, navigate, campaignAddress, swapId, transactionHash, selectedNetwork]);
 
   const handleMakeSwap = () => {
     window.open('https://swap.chainflip.io/', '_blank');
@@ -93,7 +103,7 @@ const VerifiedUserPage = () => {
 
   const handleVerify = async () => {
     if (swapId && transactionHash) {
-      console.log("Verifying swap with ID:", swapId, "and Transaction Hash:", transactionHash);
+      console.log("Verifying swap with ID:", swapId, "Transaction Hash:", transactionHash, "Network:", selectedNetwork);
       setVerifyClicked(true);
       try {
         await refetch();
@@ -117,6 +127,14 @@ const VerifiedUserPage = () => {
       <h1 className="page-title">Campaign Actions</h1>
       <p className="instruction">You're required to make a swap for participating in this campaign</p>
       <div className="input-container">
+        <select
+          value={selectedNetwork}
+          onChange={(e) => setSelectedNetwork(e.target.value)}
+          className="input-field"
+        >
+          <option value="sepolia">Sepolia</option>
+          <option value="arbitrum">Arbitrum</option>
+        </select>
         <input
           type="text"
           value={swapId}
@@ -141,6 +159,5 @@ const VerifiedUserPage = () => {
     </div>
   );
 };
-
 
 export default VerifiedUserPage;
