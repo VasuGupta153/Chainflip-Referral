@@ -41,3 +41,128 @@ body {
 .logo:hover, .user-address:hover {
   transform: scale(1.05);
 }
+
+
+
+.main-content {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+}
+
+.content-container {
+  width: 100%;
+  max-width: 1200px;
+}
+
+.welcome-section {
+  background: linear-gradient(135deg, #1a2233 0%, #0d1320 100%);
+  border-radius: 20px;
+  padding: 40px;
+  text-align: center;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.welcome-content {
+  margin-bottom: 40px;
+}
+
+.icon-container {
+  margin-bottom: 20px;
+}
+
+.icon {
+  font-size: 25px;
+  background-color: #3366ff;
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  color: white;
+}
+
+.welcome-content h1 {
+  font-size: 36px;
+  margin-bottom: 10px;
+}
+
+.welcome-content p {
+  font-size: 18px;
+  color: #a0a0a0;
+  margin-bottom: 20px;
+}
+
+.apply-button {
+  background-color: #3366ff;
+  color: white;
+  border: none;
+  padding: 12px 24px;
+  font-size: 18px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.3s, transform 0.3s;
+}
+
+.apply-button:hover {
+  background-color: #2952cc;
+  transform: translateY(-2px);
+}
+
+.how-it-works h2 {
+  font-size: 24px;
+  margin-bottom: 30px;
+}
+
+.steps {
+  display: flex;
+  justify-content: space-around;
+  gap: 20px;
+}
+
+.step {
+  flex: 1;
+  background-color: rgba(255, 255, 255, 0.05);
+  border-radius: 12px;
+  padding: 20px;
+  transition: transform 0.3s;
+}
+
+.step:hover {
+  transform: translateY(-5px);
+}
+
+.step-icon {
+  background-color: #3366ff;
+  color: white;
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 24px;
+  margin: 0 auto 15px;
+}
+
+.step h3 {
+  font-size: 18px;
+  margin-bottom: 10px;
+}
+
+.step p {
+  font-size: 14px;
+  color: #a0a0a0;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.welcome-section, .steps {
+  animation: fadeIn 0.5s ease-out;
+}
