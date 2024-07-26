@@ -26,7 +26,7 @@ const UserDashboard = () => {
       const participated = await campaign?.hasParticipated(address);
       // console.log(participated)
       setHasParticipated(participated);
-
+      console.log(participated)
       if (participated) {
         const count = await campaign?.referralCount(address);
         setReferralCount(Number(count));
@@ -87,7 +87,7 @@ const UserDashboard = () => {
     <div className="user-dashboard">
       <h1 className="dashboard-title">User Dashboard</h1>
       <div className="dashboard-content fade-in">
-        {!true ? (
+        {!hasParticipated ? (
           <div className="participation-section">
             <p className="info-text">You haven't participated in this campaign yet.</p>
             <input 

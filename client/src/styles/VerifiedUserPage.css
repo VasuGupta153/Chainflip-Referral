@@ -5,7 +5,6 @@
   padding: 40px 20px;
   background-color: #1a1e24;
   border-radius: 10px;
-  /* box-shadow: 0 0 20px rgba(66, 135, 245, 0.2); */
   animation: fadeIn 0.5s ease-out;
 }
 
@@ -26,11 +25,27 @@
 .input-container {
   display: flex;
   flex-direction: column;
-  gap: 15px;
+  gap: 20px; /* Increased gap for even spacing */
   margin-bottom: 30px;
 }
 
+.select-wrapper {
+  position: relative;
+}
+
+.select-wrapper::after {
+  content: '\25BC';
+  position: absolute;
+  top: 50%;
+  right: 15px;
+  transform: translateY(-50%);
+  pointer-events: none;
+  color: #4287f5;
+}
+
+.network-select,
 .input-field {
+  width: 100%;
   padding: 12px 15px;
   font-size: 16px;
   background-color: #2a2e35;
@@ -40,6 +55,12 @@
   transition: all 0.3s ease;
 }
 
+.network-select {
+  appearance: none;
+  cursor: pointer;
+}
+
+.network-select:focus,
 .input-field:focus {
   outline: none;
   border-color: #4287f5;

@@ -38,15 +38,14 @@ const VerifiedUserPage = () => {
   }, [campaign]);
 
   const fetchTransaction = async (txHash) => {
-    const apiKey=selectedNetwork==='sepolia'
-    ? import.meta.env.VITE_ETHEREUM_API_KEY
-    : import.meta.env.VITE_ARBITRUM_API_KEY;
+    const apiKey = selectedNetwork === 'sepolia'
+      ? import.meta.env.VITE_ETHEREUM_API_KEY
+      : import.meta.env.VITE_ARBITRUM_API_KEY;
 
     const apiUrl = selectedNetwork === 'sepolia' 
       ? `https://api-sepolia.etherscan.io/api`
       : `https://api-sepolia.arbiscan.io/api`;
       
-    
     const url = `${apiUrl}?module=proxy&action=eth_getTransactionByHash&txhash=${txHash}&apikey=${apiKey}`;
     
     try {
@@ -59,9 +58,31 @@ const VerifiedUserPage = () => {
     }
   };
 
+  const fetchBlockTimestamp = async (blockNumber) => {
+    const apiKey = selectedNetwork === 'sepolia'
+      ? import.meta.env.VITE_ETHEREUM_API_KEY
+      : import.meta.env.VITE_ARBITRUM_API_KEY;
+
+    const apiUrl = selectedNetwork === 'sepolia' 
+      ? `https://api-sepolia.etherscan.io/api`
+      : `https://api-sepolia.arbiscan.io/api`;
+
+    const decimalBlockNumber = parseInt(blockNumber, 16);
+    
+    const url = `${apiUrl}?module=block&action=getblockreward&blockno=${decimalBlockNumber}&apikey=${apiKey}`;
+    
+    try {
+      const response = await fetch(url);
+      const data = await response.json();
+      return parseInt(data.result.timeStamp);
+    } catch (error) {
+      console.error("Error fetching block timestamp:", error);
+      return null;
+    }
+  };
+
   useEffect(() => {
     const verifySwap = async () => {
-      console.log("hdfh"+campaignStartTime);
       if (verifyClicked && data && data.allSwaps && campaignStartTime && signer) {
         const userSwap = data.allSwaps.edges.find(edge => edge.node.nativeId === swapId)?.node;
         
@@ -74,19 +95,25 @@ const VerifiedUserPage = () => {
         
         const depositAddress = userSwap.swapChannelByDepositChannelId?.depositAddress;
         const swapTimestamp = Math.floor(new Date(userSwap.swapScheduledBlockTimestamp).getTime() / 1000);
-        console.log(swapTimestamp+"swapts")
+        console.log(swapTimestamp+"swapts"+depositAddress)
         
         if (swapTimestamp >= campaignStartTime) {
           const transaction = await fetchTransaction(transactionHash);
           console.log("Fetched transaction:", transaction);
-          console.log('siger'+signer.address)
-          if (transaction && 
-              transaction.to === depositAddress && 
-              parseInt(transaction.timeStamp) >= campaignStartTime && transaction.from===signer.address) {
-            setUser({ ...user, hasSwapped: true });
-            navigate(`/dashboard/${campaignAddress}`);
+
+          if (transaction) {
+            const blockTimestamp = await fetchBlockTimestamp(transaction.blockNumber);
+            
+            if (transaction.to.toLowerCase() === depositAddress.toLowerCase() && 
+                blockTimestamp >= campaignStartTime && 
+                transaction.from.toLowerCase() === signer.address.toLowerCase()) {
+              setUser({ ...user, hasSwapped: true });
+              navigate(`/dashboard/${campaignAddress}`);
+            } else {
+              alert("Invalid transaction. Please make sure you've entered the correct transaction hash for your swap.");
+            }
           } else {
-            alert("Invalid transaction. Please make sure you've entered the correct transaction hash for your swap.");
+            alert("Transaction not found. Please check the transaction hash and try again.");
           }
         } else {
           alert("The swap was made before the campaign started. Please make a new swap.");
@@ -127,14 +154,16 @@ const VerifiedUserPage = () => {
       <h1 className="page-title">Campaign Actions</h1>
       <p className="instruction">You're required to make a swap for participating in this campaign</p>
       <div className="input-container">
-        <select
-          value={selectedNetwork}
-          onChange={(e) => setSelectedNetwork(e.target.value)}
-          className="input-field"
-        >
-          <option value="sepolia">Sepolia</option>
-          <option value="arbitrum">Arbitrum</option>
-        </select>
+        <div className="select-wrapper">
+          <select
+            value={selectedNetwork}
+            onChange={(e) => setSelectedNetwork(e.target.value)}
+            className="network-select"
+          >
+            <option value="sepolia">Sepolia</option>
+            <option value="arbitrum">Arbitrum</option>
+          </select>
+        </div>
         <input
           type="text"
           value={swapId}
