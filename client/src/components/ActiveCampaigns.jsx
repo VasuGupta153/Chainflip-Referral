@@ -2,17 +2,17 @@ import { useQuery } from '@apollo/client'
 import '../styles/ActiveCampaigns.css'
 import React, { useState } from 'react';
 import { GET_ACTIVE_CAMPAIGNS } from '../utils/queries'
-import { ethers,BaseWallet } from 'ethers';
+import { ethers } from 'ethers';
 import abi from '../contracts/Campaign.json';
 import { useAuth } from '../contexts/AuthContext';
-import {useNavigate} from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 
 const ActiveCampaigns = ({campaignFactory, signer}) => {
   const { loading, error, data } = useQuery(GET_ACTIVE_CAMPAIGNS, {
     context: { clientName: 'campaign' }
   });
   const [selectedCampaign, setSelectedCampaign] = useState(null);
-  const { user} = useAuth();
+  const { user } = useAuth();
 
   const navigate = useNavigate();
   if (loading) return <p>Loading...</p>;
@@ -55,22 +55,26 @@ const ActiveCampaigns = ({campaignFactory, signer}) => {
         navigate(`/dashboard/${campaign.campaignAddress}`);
       }
     }
-
   return (
     <div className="active-campaigns">
       <h2>Active Campaigns</h2>
       {campaigns.length > 0 ? (
         campaigns.map((campaign) => (
           <div key={campaign.id} className="campaign-card">
-            <h3>Campaign ID: {campaign.id}</h3>
+            <h3>{campaign.name || `Campaign ID: ${campaign.id}`}</h3>
             <p><strong>Creator:</strong> {campaign.creator}</p>
             <p><strong>Is Live:</strong> {campaign.isLive === "1" ? "Yes" : "No"}</p>
+            <p><strong>Reward per Referral:</strong> {
+              campaign.rewardPerReferral 
+                ? `${ethers.formatEther(campaign.rewardPerReferral)} FLIP`
+                : 'N/A'
+            }</p>
             {selectedCampaign && selectedCampaign.id === campaign.id ? (
               <>
                 <div className="verification-section">
                   <p className="human-text">Human Verification</p>
                 </div>
-                <button onClick = {() => handleAuth(selectedCampaign)} className='view-link'> Verify </button>
+                <button onClick={() => handleAuth(selectedCampaign)} className='view-link'>Verify</button>
               </>
             ) : (
               <button onClick={() => handleViewCampaign(campaign)} className="view-link">View Campaign</button>

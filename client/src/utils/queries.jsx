@@ -6,6 +6,8 @@ export const GET_ACTIVE_CAMPAIGNS = gql`
     campaignCreateds(where: { isLive: "1" }) {
       id
       creator
+      name
+      rewardPerReferral
       isLive
       campaignAddress
     }
