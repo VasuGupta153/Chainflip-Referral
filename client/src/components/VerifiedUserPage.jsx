@@ -9,7 +9,6 @@ import '../styles/VerifiedUserPage.css';
 const VerifiedUserPage = () => {
   const [swapId, setSwapId] = useState('');
   const [transactionHash, setTransactionHash] = useState('');
-  const [verifyClicked, setVerifyClicked] = useState(false);
   const [selectedNetwork, setSelectedNetwork] = useState('sepolia');
   const { user, setUser } = useAuth();
   const params = useParams();
@@ -21,7 +20,6 @@ const VerifiedUserPage = () => {
   const { loading, error, data, refetch } = useQuery(GET_SWAPS, {
     context: { clientName: 'swap' },
   });
-  console.log(data);
 
   const [campaignStartTime, setCampaignStartTime] = useState(null);
 
@@ -39,9 +37,9 @@ const VerifiedUserPage = () => {
 
   const fetchTransaction = async (txHash) => {
     const apiKey = selectedNetwork === 'sepolia'
-      ? import.meta.env.VITE_ETHEREUM_API_KEY
+      ? import.meta.env.VITE_ETHERSCAN_API_KEY
       : import.meta.env.VITE_ARBITRUM_API_KEY;
-
+     
     const apiUrl = selectedNetwork === 'sepolia' 
       ? `https://api-sepolia.etherscan.io/api`
       : `https://api-sepolia.arbiscan.io/api`;
@@ -60,7 +58,7 @@ const VerifiedUserPage = () => {
 
   const fetchBlockTimestamp = async (blockNumber) => {
     const apiKey = selectedNetwork === 'sepolia'
-      ? import.meta.env.VITE_ETHEREUM_API_KEY
+      ? import.meta.env.VITE_ETHERSCAN_API_KEY
       : import.meta.env.VITE_ARBITRUM_API_KEY;
 
     const apiUrl = selectedNetwork === 'sepolia' 
@@ -81,66 +79,62 @@ const VerifiedUserPage = () => {
     }
   };
 
-  useEffect(() => {
-    const verifySwap = async () => {
-      if (verifyClicked && data && data.allSwaps && campaignStartTime && signer) {
-        const userSwap = data.allSwaps.edges.find(edge => edge.node.nativeId === swapId)?.node;
-        
-        if (!userSwap) {
-          alert("Swap not found. Please check the Swap ID and try again.");
-          return;
-        }
+  const verifySwap = async () => {
+    if (!swapId || !transactionHash) {
+      alert("Please enter both Swap ID and Transaction Hash before verifying.");
+      return;
+    }
 
-        console.log("Verification data:", { userSwap, campaignStartTime, signerAddress: signer.address, selectedNetwork });
-        
-        const depositAddress = userSwap.swapChannelByDepositChannelId?.depositAddress;
-        const swapTimestamp = Math.floor(new Date(userSwap.swapScheduledBlockTimestamp).getTime() / 1000);
-        console.log(swapTimestamp+"swapts"+depositAddress)
-        
-        if (swapTimestamp >= campaignStartTime) {
-          const transaction = await fetchTransaction(transactionHash);
-          console.log("Fetched transaction:", transaction);
+    if (!data || !data.allSwaps || !campaignStartTime || !signer) {
+      alert("Some required data is missing. Please try again.");
+      return;
+    }
 
-          if (transaction) {
-            const blockTimestamp = await fetchBlockTimestamp(transaction.blockNumber);
-            
-            if (transaction.to.toLowerCase() === depositAddress.toLowerCase() && 
-                blockTimestamp >= campaignStartTime && 
-                transaction.from.toLowerCase() === signer.address.toLowerCase()) {
-              setUser({ ...user, hasSwapped: true });
-              navigate(`/dashboard/${campaignAddress}`);
-            } else {
-              alert("Invalid transaction. Please make sure you've entered the correct transaction hash for your swap.");
-            }
-          } else {
-            alert("Transaction not found. Please check the transaction hash and try again.");
-          }
+    await refetch();
+
+    const userSwap = data.allSwaps.edges.find(edge => edge.node.nativeId === swapId)?.node;
+    
+    if (!userSwap) {
+      alert("Swap not found. Please check the Swap ID and try again.");
+      return;
+    }
+
+    console.log("Verification data:", { userSwap, campaignStartTime, signerAddress: signer.address, selectedNetwork });
+    
+    const depositAddress = userSwap.swapChannelByDepositChannelId?.depositAddress;
+    const swapTimestamp = Math.floor(new Date(userSwap.swapScheduledBlockTimestamp).getTime() / 1000);
+    // console.log(swapTimestamp+"swapts"+depositAddress);
+    
+    if (swapTimestamp >= campaignStartTime) {
+      const transaction = await fetchTransaction(transactionHash);
+      console.log("Fetched transaction:", transaction);
+
+      if (transaction) {
+        const blockTimestamp = await fetchBlockTimestamp(transaction.blockNumber);
+        
+        if (transaction.to.toLowerCase() === depositAddress.toLowerCase() && 
+            blockTimestamp >= campaignStartTime && 
+            transaction.from.toLowerCase() === signer.address.toLowerCase()) {
+          setUser({ ...user, hasSwapped: true });
+          navigate(`/dashboard/${campaignAddress}`);
         } else {
-          alert("The swap was made before the campaign started. Please make a new swap.");
+          alert("Invalid transaction. Please make sure you've entered the correct transaction hash for your swap.");
         }
+      } else {
+        alert("Transaction not found. Please check the transaction hash and try again.");
       }
-    };
-
-    verifySwap();
-  }, [data, campaignStartTime, signer, verifyClicked, user, navigate, campaignAddress, swapId, transactionHash, selectedNetwork]);
+    } else {
+      alert("The swap was made before the campaign started. Please make a new swap.");
+    }
+  };
 
   const handleMakeSwap = () => {
     window.open('https://swap.chainflip.io/', '_blank');
   };
 
   const handleVerify = async () => {
-    if (swapId && transactionHash) {
-      console.log("Verifying swap with ID:", swapId, "Transaction Hash:", transactionHash, "Network:", selectedNetwork);
-      setVerifyClicked(true);
-      try {
-        await refetch();
-      } catch (error) {
-        console.error("Error during refetch:", error);
-        alert(`Error verifying swap: ${error.message}`);
-      }
-    } else {
-      alert("Please enter both Swap ID and Transaction Hash before verifying.");
-    }
+    console.log("Verifying swap with ID:", swapId, "Transaction Hash:", transactionHash, "Network:", selectedNetwork);
+    await verifySwap();
   };
 
   if (loading) return <p>Loading swaps...</p>;
