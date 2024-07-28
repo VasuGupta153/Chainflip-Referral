@@ -37,6 +37,9 @@ const UserDashboard = () => {
         const code = await campaign?.referralCodes(address);
         setUserReferralCode(code);
 
+        const check = await campaign?.isReferred(address);
+        if(check)
+            count++;
         setEstimatedReward(Number(count) * ethers.formatEther(reward));
       }
 
