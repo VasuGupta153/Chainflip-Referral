@@ -28,7 +28,7 @@ const UserDashboard = () => {
       setHasParticipated(participated);
       console.log(participated)
       if (participated) {
-        const count = await campaign?.referralCount(address);
+        let count = await campaign?.referralCount(address);
         setReferralCount(Number(count));
 
         const reward = await campaign?.rewardPerReferral();
