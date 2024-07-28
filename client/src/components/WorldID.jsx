@@ -79,7 +79,7 @@ export default function WorldID() {
             };
             console.log("Sending proof to backend for verification:\n", JSON.stringify(reqBody));
             try {
-                const res = await fetch("http://localhost:3000/api/verify", {
+                const res = await fetch(import.meta.env.VITE_BACKEND, {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json",
